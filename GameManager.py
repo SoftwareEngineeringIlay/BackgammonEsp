@@ -4,11 +4,13 @@ from GUI import BackgammonGUI
 from Screen import LoginScreen, WinningScreen
 from Files import Data
 from copyright import Copyright
-
+from JoystickMouse import start_local_mouse
 
 class GameManager:
     def __init__(self):
         pygame.init()
+        pygame.mouse.set_visible(True)
+        start_local_mouse()
         self.login_screen = None
         self.game = None
         self.running = True
