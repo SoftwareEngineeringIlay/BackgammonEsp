@@ -12,7 +12,7 @@ import pygame
 
 SERIAL_PORT      = "COM6"
 BAUDRATE         = 115200
-PIXELS_PER_STEP  = 25
+PIXELS_PER_STEP  = 3
 FPS_LIMIT        = 144
 
 _DIR_TO_DELTA = {
@@ -27,41 +27,42 @@ class _Worker(threading.Thread):
 
     def run(self):
         try:
-            ser = serial.Serial(SERIAL_PORT, BAUDRATE, timeout=0.02)
+            ser = serial.Serial(SERIAL_PORT, BAUDRATE, timeout=0.01)
         except serial.SerialException as e:
-            print(f"[JoystickMouseLocal] ⚠ {e}")
+            print(f"[Joystick] {e}")
             return
 
-        clock       = pygame.time.Clock()
-        last_dir    = None
-        last_move   = 0.0
-        MIN_DT      = 1.0 / 120.0     # max 60 cursor moves per sec
+        clock = pygame.time.Clock()
+        active_dir = None  # current held direction
+        last_move_time = 0.0
+        REPEAT_HZ = 180  # how many moves per second
+        MIN_DT = 1.0 / REPEAT_HZ
 
         while True:
             line = ser.readline().decode(errors="ignore").strip()
-            now  = time.time()
+            now = time.time()
 
+            # update active direction on any token
+            if line in _DIR_TO_DELTA or line == "CENTER":
+                active_dir = None if line == "CENTER" else line
+
+            # click still works immediately
             if line == "PRESS":
-                # Synthesise a click at current cursor pos
                 pos = pygame.mouse.get_pos()
-                for etype in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
-                    pygame.event.post(pygame.event.Event(etype,
-                                                         {"pos": pos,
-                                                          "button": 1}))
-                continue
+                for t in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
+                    pygame.event.post(pygame.event.Event(t, {"pos": pos, "button": 1}))
 
-            if line in _DIR_TO_DELTA:
-                if line == last_dir and (now - last_move) < MIN_DT:
-                    continue
-                dx, dy = _DIR_TO_DELTA[line]
-                x, y   = pygame.mouse.get_pos()
-                w, h   = pygame.display.get_window_size()
-                pygame.mouse.set_pos(max(0, min(w-1, x+dx)),
-                                     max(0, min(h-1, y+dy)))
-                last_dir  = line
-                last_move = now
+            # continuous movement
+            if active_dir and (now - last_move_time) >= MIN_DT:
+                dx, dy = _DIR_TO_DELTA[active_dir]
+                x, y = pygame.mouse.get_pos()
+                w, h = pygame.display.get_window_size()
+                pygame.mouse.set_pos(max(0, min(w - 1, x + dx)),
+                                     max(0, min(h - 1, y + dy)))
+                last_move_time = now
 
-            clock.tick(FPS_LIMIT)
+            clock.tick(REPEAT_HZ)
+
 
 def start_local_mouse():
     _Worker().start()
