@@ -1,5 +1,6 @@
 import sys
 import pygame
+import time
 from Files import Data
 
 BASE_PATH = 'C:\\Users\\Magshimim\\PycharmProjects\\BackgammonProject\\img\\'
@@ -10,7 +11,8 @@ RED = (200, 30, 50)
 
 
 class BackButton:
-    RADIUS = 20
+    RADIUS = 10
+    DEBOUNCE_MS = 150
 
     def __init__(self, screen):
         self.screen = screen
@@ -18,6 +20,7 @@ class BackButton:
         self.rect = pygame.Rect(self.center[0] - self.RADIUS,
                                 self.center[1] - self.RADIUS,
                                 self.RADIUS * 2, self.RADIUS * 2)
+        self._last_click = 0.0
 
     def draw(self):
         pygame.draw.circle(self.screen, RED, self.center, self.RADIUS)
@@ -30,7 +33,13 @@ class BackButton:
                          (self.center[0] + arm, self.center[1] - arm), 3)
 
     def is_clicked(self, event):
-        return event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos)
+        if event.type != pygame.MOUSEBUTTONDOWN or not self.rect.collidepoint(event.pos):
+            return False
+        now = time.time() * 1000
+        if now - self._last_click < self.DEBOUNCE_MS:
+            return False            # too soon → treat as same click
+        self._last_click = now
+        return True
 
 
 class Screen:

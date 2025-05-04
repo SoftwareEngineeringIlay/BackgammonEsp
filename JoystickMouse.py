@@ -12,8 +12,8 @@ import pygame
 
 SERIAL_PORT      = "COM6"
 BAUDRATE         = 115200
-PIXELS_PER_STEP  = 12
-FPS_LIMIT        = 120
+PIXELS_PER_STEP  = 25
+FPS_LIMIT        = 144
 
 _DIR_TO_DELTA = {
     "UP":    (0, -PIXELS_PER_STEP),
@@ -35,7 +35,7 @@ class _Worker(threading.Thread):
         clock       = pygame.time.Clock()
         last_dir    = None
         last_move   = 0.0
-        MIN_DT      = 1.0 / 60.0     # max 60 cursor moves per sec
+        MIN_DT      = 1.0 / 120.0     # max 60 cursor moves per sec
 
         while True:
             line = ser.readline().decode(errors="ignore").strip()
