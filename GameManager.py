@@ -31,8 +31,8 @@ class GameManager:
                         self.game = BackgammonGUI()
                         winner_player = self.game.run()
 
-                        WinningScreen(self.game.screen, winner_player).draw()
                         self.ring.end_game()
+                        WinningScreen(self.game.screen, winner_player).draw()
 
                         winner, loser = self.data.match_usernames(winner_player, self.login_screen.users.values())
                         self.data.structure_data()

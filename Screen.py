@@ -11,7 +11,7 @@ RED = (200, 30, 50)
 
 
 class BackButton:
-    RADIUS = 12
+    RADIUS = 14
     DEBOUNCE_MS = 250
 
     def __init__(self, screen):

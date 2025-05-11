@@ -1,5 +1,6 @@
 import pygame
 from BackgammonGame import Backgammon
+from Screen import BackButton
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
@@ -17,6 +18,7 @@ class BackgammonGUI:
         self.selected_checker = None
         self.rolled_this_turn = False
         self.message_box = ["", "", "", "", ""]  # List to store last 5 messages
+        self.back_button = BackButton(self.screen)
 
     def reset_selected_positions(self):
         self.selected_checker = None
@@ -172,11 +174,13 @@ class BackgammonGUI:
         self.draw_message_box()
         self.draw_messages()
 
+        self.back_button.draw()
+
         pygame.display.flip()
 
     def handle_events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or self.back_button.is_clicked(event):
                 self.running = False
                 break
             elif event.type == pygame.MOUSEBUTTONDOWN:
