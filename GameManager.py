@@ -29,17 +29,18 @@ class GameManager:
 
                 if self.login_screen.menu_screen.game_started:
                     try:
-                        self.ring.start_game()
                         self.speaker.play_start()
+                        self.ring.start_game()
+                        self.speaker.start_background()
 
                         self.game = BackgammonGUI()
-                        self.speaker.start_background()
                         winner_player = self.game.run()
 
-                        self.speaker.stop_background()
                         self.speaker.play_end()
                         self.ring.end_game()
+
                         WinningScreen(self.game.screen, winner_player).draw()
+                        self.login_screen.menu_screen.game_started = False
 
                         winner, loser = self.data.match_usernames(winner_player, self.login_screen.users.values())
                         self.data.structure_data()

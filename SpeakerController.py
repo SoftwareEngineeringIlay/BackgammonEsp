@@ -3,6 +3,7 @@ SpeakerController – routes game events to DFPlayer via the shared
 serial queue in JoystickMouse.send_command().
 """
 from JoystickMouse import send_command
+import time
 
 class SpeakerController:
     def play_start(self):
@@ -16,3 +17,4 @@ class SpeakerController:
 
     def stop_background(self):
         send_command("BG_STOP")
+        time.sleep(0.2)
