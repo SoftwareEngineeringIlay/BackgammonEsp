@@ -6,6 +6,7 @@ from Files import Data
 from copyright import Copyright
 from JoystickMouse import start_local_mouse
 from RingController import RingLightController
+from SpeakerController import SpeakerController
 
 class GameManager:
     def __init__(self):
@@ -13,6 +14,7 @@ class GameManager:
         pygame.mouse.set_visible(True)
         start_local_mouse()
         self.ring = RingLightController()
+        self.speaker = SpeakerController()
         self.login_screen = None
         self.game = None
         self.running = True
@@ -28,9 +30,14 @@ class GameManager:
                 if self.login_screen.menu_screen.game_started:
                     try:
                         self.ring.start_game()
+                        self.speaker.play_start()
+
                         self.game = BackgammonGUI()
+                        self.speaker.start_background()
                         winner_player = self.game.run()
 
+                        self.speaker.stop_background()
+                        self.speaker.play_end()
                         self.ring.end_game()
                         WinningScreen(self.game.screen, winner_player).draw()
 

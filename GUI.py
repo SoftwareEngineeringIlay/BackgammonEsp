@@ -1,6 +1,7 @@
 import pygame
 from BackgammonGame import Backgammon
 from Screen import BackButton
+from SpeakerController import SpeakerController
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
@@ -181,6 +182,7 @@ class BackgammonGUI:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or self.back_button.is_clicked(event):
+                SpeakerController().stop_background()
                 self.running = False
                 break
             elif event.type == pygame.MOUSEBUTTONDOWN:
