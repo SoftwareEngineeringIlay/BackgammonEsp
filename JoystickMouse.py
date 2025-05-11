@@ -50,9 +50,6 @@ class _Worker(threading.Thread):
             line = ser.readline().decode(errors="ignore").strip()
             now = time.time()
 
-            if line:
-                print("[RX]", line)
-
             # update active direction on any token
             if line in _DIR_TO_DELTA or line == "CENTER":
                 active_dir = None if line == "CENTER" else line
@@ -78,7 +75,6 @@ class _Worker(threading.Thread):
                 while True:  # empty the queue
                     cmd = _tx_queue.get_nowait()
                     ser.write((cmd + "\n").encode())
-                    print("[TX]", cmd)
             except queue.Empty:
                 pass
 
