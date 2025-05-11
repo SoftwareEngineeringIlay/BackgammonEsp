@@ -9,6 +9,7 @@ import threading
 import serial
 import time
 import pygame
+import queue                    # NEW
 
 SERIAL_PORT      = "COM6"
 BAUDRATE         = 115200
@@ -21,6 +22,13 @@ _DIR_TO_DELTA = {
     "LEFT":  (-PIXELS_PER_STEP, 0),
     "RIGHT": ( PIXELS_PER_STEP, 0),
 }
+
+# --------  outbound‑command queue  --------
+_tx_queue: "queue.Queue[str]" = queue.Queue()
+
+def send_command(cmd: str) -> None:
+    """Called by other modules to talk to the ESP32 (ring lights, etc.)."""
+    _tx_queue.put(cmd)
 
 class _Worker(threading.Thread):
     daemon = True
@@ -60,6 +68,15 @@ class _Worker(threading.Thread):
                 pygame.mouse.set_pos(max(0, min(w - 1, x + dx)),
                                      max(0, min(h - 1, y + dy)))
                 last_move_time = now
+
+            # ---------- NEW: flush any queued commands ----------
+
+            try:
+                while True:  # empty the queue
+                    cmd = _tx_queue.get_nowait()
+                    ser.write((cmd + "\n").encode())
+            except queue.Empty:
+                pass
 
             clock.tick(REPEAT_HZ)
 
